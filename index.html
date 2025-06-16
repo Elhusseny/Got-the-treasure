@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة الكنز 🪙</title>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background-color: #f9fbe7;
+      text-align: center;
+      padding: 30px;
+      direction: rtl;
+    }
+
+    h1 {
+      color: #33691e;
+    }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      grid-template-rows: repeat(5, 60px);
+      gap: 10px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      background-color: #dcedc8;
+      border: 2px solid #558b2f;
+      cursor: pointer;
+      font-size: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+
+    .cell:hover {
+      background-color: #c5e1a5;
+    }
+
+    #message {
+      font-size: 20px;
+      margin-top: 20px;
+      color: #2e7d32;
+      min-height: 30px;
+    }
+
+    #attempts {
+      font-size: 18px;
+      margin-top: 10px;
+      color: #455a64;
+    }
+
+    #reset {
+      margin-top: 25px;
+      padding: 8px 20px;
+      font-size: 16px;
+      background-color: #8bc34a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #reset:hover {
+      background-color: #689f38;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>لعبة الكنز 🪙</h1>
+  <p>اضغط على أحد المربعات لاكتشاف مكان الكنز!</p>
+
+  <div id="attempts">عدد المحاولات المتبقية: 5</div>
+  <div id="grid"></div>
+  <div id="message"></div>
+  <button id="reset">إعادة اللعبة 🔄</button>
+
+  <script>
+    const gridSize = 5;
+    const maxAttempts = 5;
+
+    let attemptsLeft = maxAttempts;
+    let treasureX, treasureY;
+    let gameOver = false;
+
+    const grid = document.getElementById("grid");
+    const message = document.getElementById("message");
+    const attemptsDisplay = document.getElementById("attempts");
+    const resetBtn = document.getElementById("reset");
+
+    function createGrid() {
+      grid.innerHTML = "";
+      message.textContent = "";
+      gameOver = false;
+      attemptsLeft = maxAttempts;
+      updateAttemptsDisplay();
+
+      treasureX = Math.floor(Math.random() * gridSize);
+      treasureY = Math.floor(Math.random() * gridSize);
+
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          cell.dataset.x = x;
+          cell.dataset.y = y;
+          cell.addEventListener("click", handleClick);
+          grid.appendChild(cell);
+        }
+      }
+    }
+
+    function updateAttemptsDisplay() {
+      attemptsDisplay.textContent = `عدد المحاولات المتبقية: ${attemptsLeft}`;
+    }
+
+    function handleClick(e) {
+      if (gameOver) return;
+
+      const cell = e.target;
+      const x = parseInt(cell.dataset.x);
+      const y = parseInt(cell.dataset.y);
+
+      if (cell.textContent !== "") return;
+
+      attemptsLeft--;
+      updateAttemptsDisplay();
+
+      if (x === treasureX && y === treasureY) {
+        cell.style.backgroundColor = "#ffd700";
+        cell.textContent = "🏆";
+        message.textContent = `مبروك! لقيت الكنز في ${maxAttempts - attemptsLeft} محاولة 🎉`;
+        endGame();
+      } else if (Math.abs(x - treasureX) <= 1 && Math.abs(y - treasureY) <= 1) {
+        cell.style.backgroundColor = "#fff176";
+        cell.textContent = "🔥";
+        message.textContent = "قربت من الكنز!";
+      } else {
+        cell.style.backgroundColor = "#ef9a9a";
+        cell.textContent = "❌";
+        message.textContent = "مش هنا... حاول تاني.";
+      }
+
+      if (attemptsLeft === 0 && !gameOver) {
+        message.textContent = "خلصت المحاولات! الكنز كان في مكان تاني 😢";
+        endGame();
+      }
+    }
+
+    function endGame() {
+      gameOver = true;
+    }
+
+    resetBtn.addEventListener("click", createGrid);
+
+    createGrid();
+  </script>
+
+</body>
+</html>
